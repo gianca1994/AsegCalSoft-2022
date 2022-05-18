@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v3.0.1/attendees")
@@ -16,6 +15,10 @@ public class AttendeeController {
 
     @Autowired
     private AttendeeService attendeeService;
+
+    private boolean checkDNI(String dni) {
+        return dni.matches("[+-]?\\d*(\\.\\d+)?") && dni.length() > 0;
+    }
 
     @GetMapping()
     public ResponseEntity<Object> getAttendees() {
@@ -30,49 +33,48 @@ public class AttendeeController {
     }
 
     @GetMapping("/{dni}")
-    public ResponseEntity<Object> getAttendeeById(@PathVariable String dni) {
-        try {
-            Attendee attendee = attendeeService.getAttendeeByDni(dni);
+    public ResponseEntity<Object> getAttendeeByDni(@PathVariable String dni) {
+        if (!checkDNI(dni))
+            return new ResponseEntity<>("Invalid DNI format.", HttpStatus.BAD_REQUEST);
 
-            if (attendee != null){
-                return new ResponseEntity<>(
-                        attendee,
-                        HttpStatus.OK
-                );
-            }else{
-                return new ResponseEntity<>("Assistant not found", HttpStatus.NOT_FOUND);
-            }
+        Attendee attendee = attendeeService.getAttendeeByDni(dni);
 
-        } catch (Exception error) {
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        if (attendee != null) {
+            return new ResponseEntity<>(attendee, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Assistant not found", HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping
     public ResponseEntity<Object> saveAttendee(@RequestBody Attendee attendee) {
-        try {
-            Attendee newAttendee = attendeeService.saveAttendee(attendee);
+        if (!checkDNI(attendee.getDni()))
+            return new ResponseEntity<>("Invalid DNI format.", HttpStatus.BAD_REQUEST);
 
-            if (newAttendee != null) {
-                return new ResponseEntity<>(
-                        attendeeService.saveAttendee(attendee),
-                        HttpStatus.OK
-                );
-            }else{
-                return new ResponseEntity<>("The ID does not comply with the expected format or contains letters.", HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception error) {
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        Attendee oldAttendee = attendeeService.getAttendeeByDni(attendee.getDni());
+
+        if (oldAttendee != null) {
+            return new ResponseEntity<>("The assistant is already registered.", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(
+                    attendeeService.saveAttendee(attendee),
+                    HttpStatus.OK
+            );
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteUser(@PathVariable int id) {
-        try {
-            attendeeService.deleteAttendee(id);
+    @DeleteMapping("/{dni}")
+    public ResponseEntity<Object> deleteUser(@PathVariable String dni) {
+        if (!checkDNI(dni))
+            return new ResponseEntity<>("Invalid DNI format.", HttpStatus.BAD_REQUEST);
+
+        Attendee deleteAttendee = attendeeService.getAttendeeByDni(dni);
+
+        if (deleteAttendee != null) {
+            attendeeService.deleteAttendee(dni);
             return new ResponseEntity<>("Attendee deleted correctly!", HttpStatus.OK);
-        } catch (Exception error) {
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>("Assistant not found!", HttpStatus.NOT_FOUND);
         }
     }
 }

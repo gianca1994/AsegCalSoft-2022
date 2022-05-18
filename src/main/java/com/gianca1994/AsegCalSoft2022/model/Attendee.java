@@ -2,19 +2,16 @@ package com.gianca1994.AsegCalSoft2022.model;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 public class Attendee {
 
     @Id
-    @Column(unique = true, updatable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false, unique = true)

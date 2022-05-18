@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 public class AttendeeService {
@@ -19,21 +18,15 @@ public class AttendeeService {
     }
 
     public Attendee getAttendeeByDni(String dni) {
-        try {
-            return attendeeRepository.findAttendeeByDni(dni);
-        } catch (Exception error) {
-            return null;
-        }
+        return attendeeRepository.findAttendeeByDni(dni);
     }
 
     public Attendee saveAttendee(Attendee attendee) {
-        if (attendee.getDni().matches("[+-]?\\d*(\\.\\d+)?") && attendee.getDni().length() > 0) {
-            return attendeeRepository.save(attendee);
-        }
-        return null;
+        return attendeeRepository.save(attendee);
     }
 
-    public void deleteAttendee(int id) {
-        attendeeRepository.deleteById(id);
+    public void deleteAttendee(String dni) {
+        Attendee attendee = attendeeRepository.findAttendeeByDni(dni);
+        attendeeRepository.deleteById(attendee.getId());
     }
 }
