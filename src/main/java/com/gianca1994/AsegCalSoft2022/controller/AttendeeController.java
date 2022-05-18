@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("api/v3.0.1/attendees")
 public class AttendeeController {
@@ -27,13 +29,20 @@ public class AttendeeController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getAttendeeById(@PathVariable int id) {
+    @GetMapping("/{dni}")
+    public ResponseEntity<Object> getAttendeeById(@PathVariable String dni) {
         try {
-            return new ResponseEntity<>(
-                    attendeeService.getAttendeeById(id),
-                    HttpStatus.OK
-            );
+            Attendee attendee = attendeeService.getAttendeeByDni(dni);
+
+            if (attendee != null){
+                return new ResponseEntity<>(
+                        attendee,
+                        HttpStatus.OK
+                );
+            }else{
+                return new ResponseEntity<>("Assistant not found", HttpStatus.NOT_FOUND);
+            }
+
         } catch (Exception error) {
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
@@ -42,10 +51,16 @@ public class AttendeeController {
     @PostMapping
     public ResponseEntity<Object> saveAttendee(@RequestBody Attendee attendee) {
         try {
-            return new ResponseEntity<>(
-                    attendeeService.saveAttendee(attendee),
-                    HttpStatus.OK
-            );
+            Attendee newAttendee = attendeeService.saveAttendee(attendee);
+
+            if (newAttendee != null) {
+                return new ResponseEntity<>(
+                        attendeeService.saveAttendee(attendee),
+                        HttpStatus.OK
+                );
+            }else{
+                return new ResponseEntity<>("The ID does not comply with the expected format or contains letters.", HttpStatus.NOT_FOUND);
+            }
         } catch (Exception error) {
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }

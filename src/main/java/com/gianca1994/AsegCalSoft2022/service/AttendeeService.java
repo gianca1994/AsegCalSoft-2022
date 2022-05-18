@@ -18,12 +18,19 @@ public class AttendeeService {
         return (ArrayList<Attendee>) attendeeRepository.findAll();
     }
 
-    public Optional<Attendee> getAttendeeById(int id) {
-        return attendeeRepository.findById(id);
+    public Attendee getAttendeeByDni(String dni) {
+        try {
+            return attendeeRepository.findAttendeeByDni(dni);
+        } catch (Exception error) {
+            return null;
+        }
     }
 
     public Attendee saveAttendee(Attendee attendee) {
-        return attendeeRepository.save(attendee);
+        if (attendee.getDni().matches("[+-]?\\d*(\\.\\d+)?") && attendee.getDni().length() > 0) {
+            return attendeeRepository.save(attendee);
+        }
+        return null;
     }
 
     public void deleteAttendee(int id) {
