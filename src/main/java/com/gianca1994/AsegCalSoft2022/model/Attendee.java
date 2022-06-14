@@ -1,5 +1,6 @@
 package com.gianca1994.AsegCalSoft2022.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -7,11 +8,13 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class Attendee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private int id;
 
     @Column(nullable = false, unique = true)
@@ -33,5 +36,6 @@ public class Attendee {
     private String dniScanUrl;
 
     @Column(nullable = false)
-    private boolean approved;
+    private boolean approved = false;
+
 }
