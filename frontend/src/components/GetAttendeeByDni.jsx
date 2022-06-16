@@ -17,30 +17,50 @@ const GetAttendeeByDNI = () => {
             "content-type": "application/json"
         };
 
+        if (dni === '') {
+            await Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: "The DNI cannot be empty",
+                showConfirmButton: false,
+                timer: 2000
+            })
+            return;
+        }
         await axios.get(
             path + "api/v3.0.1/attendees/" + dni,
             {headers}
         ).then(async response => {
-            if (response.status === 200) {
-                await Swal.fire({
-                    position: 'center',
-                    icon: 'success',
-                    title: 'Attendee registered successfully!',
-                    showConfirmButton: false,
-                    timer: 1000
-                })
-                setProfile(response.data);
-            }
-        }).catch(async err =>
             await Swal.fire({
                 position: 'center',
-                icon: 'error',
-                title: err.code,
+                icon: 'success',
+                title: 'Attendee found successfully!',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 1000
             })
-        );
+            setProfile(response.data);
 
+        }).catch(async error => {
+            if (error.response.status === 400) {
+                await Swal.fire({
+                    position: 'center',
+                    icon: 'warning',
+                    title: "Bad Request",
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+                window.location.reload();
+            } else if (error.response.status === 404) {
+                await Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: "Attendee Not Found",
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+                window.location.reload();
+            }
+        });
     }
 
 
