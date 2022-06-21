@@ -2,6 +2,7 @@ package com.gianca1994.AsegCalSoft2022;
 
 
 import com.gianca1994.AsegCalSoft2022.controller.AttendeeController;
+import com.gianca1994.AsegCalSoft2022.dto.AttendeeDTO;
 import com.gianca1994.AsegCalSoft2022.model.Attendee;
 import com.gianca1994.AsegCalSoft2022.repository.AttendeeRepository;
 import com.gianca1994.AsegCalSoft2022.service.AttendeeService;
@@ -33,8 +34,8 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TestAttendeeController {
 
-    private final Attendee ATTENDEE_JUAN = new Attendee(1, "12345678", "Juan", "Perez", "666666666", "01/01/2000", "https://www.google.com", false);
-    private final Attendee ATTENDEE_FLORENCIA = new Attendee(2, "12345679", "Florencia", "Gonzalez", "666666667", "01/01/2020", "https://www.google.com", true);
+    private final Attendee ATTENDEE_JUAN = new Attendee(1,"12345678", "Juan", "Perez", "666666666", "01/01/2000", "https://www.google.com", false);
+    private final Attendee ATTENDEE_FLORENCIA = new Attendee(2,"12345679", "Florencia", "Gonzalez", "666666667", "01/01/2020", "https://www.google.com", true);
 
     @Autowired
     private AttendeeRepository attendeeRepository;
@@ -57,7 +58,7 @@ public class TestAttendeeController {
     }
 
     @Test
-    private void preTest(int numRegister) {
+    public void preTest(int numRegister) {
         attendeeRepository.deleteAll();
 
         switch (numRegister) {
@@ -79,6 +80,60 @@ public class TestAttendeeController {
     @Test
     public void givenAttendeeQueryList_whenGetAllAttendees_thenReturnAllObject() throws Exception {
         preTest(3);
+
+        mockMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(context).build();
+
+        //given
+        when(attendeeService.getAttendees()).thenReturn((ArrayList<Attendee>) attendeeRepository.findAll());
+
+        //when
+        RequestBuilder request = MockMvcRequestBuilders.get("/api/v3.0.1/attendees").accept("application/json");
+
+        MvcResult result = mockMvc.perform(request).andReturn();
+
+        //then
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void givenAttendeeQueryList_whenGetAllAttendees_thenReturnAllObject_withEmptyList() throws Exception {
+        preTest(0);
+
+        mockMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(context).build();
+
+        //given
+        when(attendeeService.getAttendees()).thenReturn((ArrayList<Attendee>) attendeeRepository.findAll());
+
+        //when
+        RequestBuilder request = MockMvcRequestBuilders.get("/api/v3.0.1/attendees").accept("application/json");
+
+        MvcResult result = mockMvc.perform(request).andReturn();
+
+        //then
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void givenAttendeeQueryList_whenGetAllAttendees_thenReturnAllObject_withNullList() throws Exception {
+        preTest(1);
+
+        mockMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(context).build();
+
+        //given
+        when(attendeeService.getAttendees()).thenReturn((ArrayList<Attendee>) attendeeRepository.findAll());
+
+        //when
+        RequestBuilder request = MockMvcRequestBuilders.get("/api/v3.0.1/attendees").accept("application/json");
+
+        MvcResult result = mockMvc.perform(request).andReturn();
+
+        //then
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void givenAttendeeQueryList_whenGetAllAttendees_thenReturnAllObject_withNullList_withEmptyList() throws Exception {
+        preTest(0);
 
         mockMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(context).build();
 
